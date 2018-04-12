@@ -9,7 +9,7 @@ from Sina_spider1.items import InformationItem, TweetsItem, FollowsItem, FansIte
 
 class Spider(CrawlSpider):
     name = "sinaSpider"
-    host = "http://weibo.cn"
+    host = "https://weibo.cn"
     start_urls = [
         5235640836, 5676304901, 5871897095, 2139359753, 5579672076, 2517436943, 5778999829, 5780802073, 2159807003,
         1756807885, 3378940452, 5762793904, 1885080105, 5778836010, 5722737202, 3105589817, 5882481217, 5831264835,
