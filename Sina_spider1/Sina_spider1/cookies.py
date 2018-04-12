@@ -8,6 +8,8 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import logging
 from yumdama import identify
+import json
+import urllib, urllib2, cookielib
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -22,22 +24,43 @@ logging.getLogger("selenium").setLevel(logging.WARNING)  # 将selenium的日志�
 
 
 """
-输入你的微博账号和密码，可去淘宝买。
+输入你的微博账号和密码，可去小号商场够买。http://www.xiaohao.shop/Home/CatGood/index/cat/5.html
 建议买几十个，微博限制的严，太频繁了会出现302转移。
 或者你也可以把时间间隔调大点。
 """
 myWeiBo = [
-    {'no': 'jiadieyuso3319@163.com', 'psw': 'a123456'},
-    {'no': 'shudieful3618@163.com', 'psw': 'a123456'},
+    {'no': '', 'psw': ''}
 ]
 
 def getCookie(account, password):
     if COOKIE_GETWAY == 0:
-        return get_cookie_from_login_sina_com_cn(account, password)
+        return json.loads(get_cookie_from_login_sina_com_cn(account, password))
     elif COOKIE_GETWAY ==1:
         return get_cookie_from_weibo_cn(account, password)
     else:
         logger.error("COOKIE_GETWAY Error!")
+
+def SinaWeibo_GetCookies( username, password):
+    sso_url = "https://passport.weibo.cn/sso/login"
+    login_data = urllib.urlencode([
+        ('username', username),
+        ('password', password),
+        ('entry', 'mweibo'),
+        ('client_id', ''),
+        ('savestate', '1'),
+        ('ec', ''),
+    ])
+
+    req = urllib2.Request(sso_url)
+    req.add_header('Origin', 'https://passport.weibo.cn')
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.14 (KHTML, like Gecko) Chrome/10.0.601.0 Safari/534.14')
+    req.add_header('Referer', 'https://passport.weibo.cn/signin/login?entry=mweibo&res=wel&wm=3349&r=http%3A%2F%2Fm.weibo.cn%2F')
+    weibo_cookies = cookielib.CookieJar()
+
+    handler = urllib2.HTTPCookieProcessor(weibo_cookies)
+    opener = urllib2.build_opener(handler)
+    opener.open(req, data=login_data)
+    return weibo_cookies
 
 def get_cookie_from_login_sina_com_cn(account, password):
     """ 获取一个账号的Cookie """
@@ -68,6 +91,7 @@ def get_cookie_from_login_sina_com_cn(account, password):
     if info["retcode"] == "0":
         logger.warning("Get Cookie Success!( Account:%s )" % account)
         cookie = session.cookies.get_dict()
+        print cookie
         return json.dumps(cookie)
     else:
         logger.warning("Failed!( Reason:%s )" % info["reason"])
@@ -141,10 +165,14 @@ def getCookies(weibo):
     for elem in weibo:
         account = elem['no']
         password = elem['psw']
-        cookie  =  getCookie(account, password)
+        cookie = dict()
+        weibo_cookiejar  =  SinaWeibo_GetCookies(account, password)._cookies['.weibo.cn']['/']
+        cookie['SCF'] = weibo_cookiejar['SCF'].value
+        cookie['SSOLoginState'] =weibo_cookiejar['SSOLoginState'].value
+        cookie['SUB'] =weibo_cookiejar['SUB'].value
+        cookie['SUHB'] =weibo_cookiejar['SUHB'].value
         if cookie != None:
             cookies.append(cookie)
-
     return cookies
 
 
