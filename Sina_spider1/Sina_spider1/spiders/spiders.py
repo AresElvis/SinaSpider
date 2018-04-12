@@ -32,10 +32,10 @@ class Spider(CrawlSpider):
             fansItems["_id"] = ID
             fansItems["fans"] = fans
 
-            url_follows = "http://weibo.cn/%s/follow" % ID
-            url_fans = "http://weibo.cn/%s/fans" % ID
-            url_tweets = "http://weibo.cn/%s/profile?filter=1&page=1" % ID
-            url_information0 = "http://weibo.cn/attgroup/opening?uid=%s" % ID
+            url_follows = "https://weibo.cn/%s/follow" % ID
+            url_fans = "https://weibo.cn/%s/fans" % ID
+            url_tweets = "https://weibo.cn/%s/profile?filter=1&page=1" % ID
+            url_information0 = "https://weibo.cn/attgroup/opening?uid=%s" % ID
             yield Request(url=url_follows, meta={"item": followsItems, "result": follows},
                           callback=self.parse3)  # 去爬关注人
             yield Request(url=url_fans, meta={"item": fansItems, "result": fans}, callback=self.parse3)  # 去爬粉丝
@@ -58,7 +58,7 @@ class Spider(CrawlSpider):
             if num_fans:
                 informationItems["Num_Fans"] = int(num_fans[0])
             informationItems["_id"] = response.meta["ID"]
-            url_information1 = "http://weibo.cn/%s/info" % response.meta["ID"]
+            url_information1 = "https://weibo.cn/%s/info" % response.meta["ID"]
             yield Request(url=url_information1, meta={"item": informationItems}, callback=self.parse1)
 
     def parse1(self, response):
