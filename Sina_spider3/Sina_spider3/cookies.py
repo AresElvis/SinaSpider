@@ -171,8 +171,8 @@ def getCookies(weibo):
         cookie['SSOLoginState'] =weibo_cookiejar['SSOLoginState'].value
         cookie['SUB'] =weibo_cookiejar['SUB'].value
         cookie['SUHB'] =weibo_cookiejar['SUHB'].value
-        if cookie != None:
-            cookies.append(cookie)
+        # if cookie != None:
+        cookies.append(cookie)
     return cookies
 
 
