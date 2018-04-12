@@ -76,3 +76,11 @@ Sina_Spider3增加了Cookie池的维护，优化了种子队列和去重队列�
 <br>2、图形解锁验证码的破解见博客 [《图形解锁破解（附Python代码）》](http://blog.csdn.net/bone_ace/article/details/71056741) 。微博爬虫的Cookie获取模块请自行更新。
 <br><br>
 <br>
+
+
+<br>
+20180412更新：
+<br>1、修改微博获取微博cookie的方式，更加便捷
+<br>2、有特殊微博数据需求的可以联系QQ：1472220342
+<br><br>
+<br>
