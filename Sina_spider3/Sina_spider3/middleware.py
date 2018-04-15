@@ -8,7 +8,7 @@
 import os
 import random
 import redis
-import json
+import json, ast
 import logging
 from user_agents import agents
 from cookies import initCookie, updateCookie, removeCookie
@@ -44,7 +44,7 @@ class CookiesMiddleware(RetryMiddleware):
         while len(redisKeys) > 0:
             elem = random.choice(redisKeys)
             if "SinaSpider:Cookies" in elem:
-                cookie = json.loads(self.rconn.get(elem))
+                cookie = json.loads(json.dumps(ast.literal_eval(self.rconn.get(elem))))
                 request.cookies = cookie
                 request.meta["accountText"] = elem.split("Cookies:")[-1]
                 break

@@ -29,31 +29,8 @@ logging.getLogger("selenium").setLevel(logging.WARNING)  # 将selenium的日志�
     建议买几十个，实际生产建议100+，微博反爬得厉害，太频繁了会出现302转移。
 """
 myWeiBo = [
-    ('13467408430', 'aogan571'),
+    ('', ''),
 ]
-
-
-def SinaWeibo_GetCookies( username, password):
-    sso_url = "https://passport.weibo.cn/sso/login"
-    login_data = urllib.urlencode([
-        ('username', username),
-        ('password', password),
-        ('entry', 'mweibo'),
-        ('client_id', ''),
-        ('savestate', '1'),
-        ('ec', ''),
-    ])
-
-    req = urllib2.Request(sso_url)
-    req.add_header('Origin', 'https://passport.weibo.cn')
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.14 (KHTML, like Gecko) Chrome/10.0.601.0 Safari/534.14')
-    req.add_header('Referer', 'https://passport.weibo.cn/signin/login?entry=mweibo&res=wel&wm=3349&r=http%3A%2F%2Fm.weibo.cn%2F')
-    weibo_cookies = cookielib.CookieJar()
-
-    handler = urllib2.HTTPCookieProcessor(weibo_cookies)
-    opener = urllib2.build_opener(handler)
-    opener.open(req, data=login_data)
-    return weibo_cookies
 
 def getCookie(account, password):
     if COOKIE_GETWAY == 0:
