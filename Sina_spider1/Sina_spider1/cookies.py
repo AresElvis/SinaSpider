@@ -29,7 +29,7 @@ logging.getLogger("selenium").setLevel(logging.WARNING)  # 将selenium的日志�
 或者你也可以把时间间隔调大点。
 """
 myWeiBo = [
-    {'no': '13889845930', 'psw': '15510035701'}
+    {'no': '', 'psw': ''}
 ]
 
 def getCookie(account, password):
