@@ -14,7 +14,7 @@ import urllib, urllib2, cookielib
 reload(sys)
 sys.setdefaultencoding('utf8')
 IDENTIFY = 1  # 验证码输入方式:        1:看截图aa.png，手动输入     2:云打码
-COOKIE_GETWAY = 0 # 0 代表从https://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.18) 获取cookie   # 1 代表从https://weibo.cn/login/获取Cookie
+COOKIE_GETWAY = 0 # 0 代表从https://passport.weibo.cn/sso/login 获取cookie   # 1 代表从https://weibo.cn/login/获取Cookie
 dcap = dict(DesiredCapabilities.PHANTOMJS)  # PhantomJS需要使用老版手机的user-agent，不然验证码会无法通过
 dcap["phantomjs.page.settings.userAgent"] = (
     "Mozilla/5.0 (Linux; U; Android 2.3.6; en-us; Nexus S Build/GRK39F) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1"
@@ -29,12 +29,12 @@ logging.getLogger("selenium").setLevel(logging.WARNING)  # 将selenium的日志�
 或者你也可以把时间间隔调大点。
 """
 myWeiBo = [
-    {'no': '', 'psw': ''}
+    {'no': '13889845930', 'psw': '15510035701'}
 ]
 
 def getCookie(account, password):
     if COOKIE_GETWAY == 0:
-        return json.loads(get_cookie_from_login_sina_com_cn(account, password))
+        return SinaWeibo_GetCookies(account,password)
     elif COOKIE_GETWAY ==1:
         return get_cookie_from_weibo_cn(account, password)
     else:
@@ -60,42 +60,17 @@ def SinaWeibo_GetCookies( username, password):
     handler = urllib2.HTTPCookieProcessor(weibo_cookies)
     opener = urllib2.build_opener(handler)
     opener.open(req, data=login_data)
-    return weibo_cookies
-
-def get_cookie_from_login_sina_com_cn(account, password):
-    """ 获取一个账号的Cookie """
-    loginURL = "https://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.18)"
-    username = base64.b64encode(account.encode("utf-8")).decode("utf-8")
-    postData = {
-        "entry": "sso",
-        "gateway": "1",
-        "from": "null",
-        "savestate": "30",
-        "useticket": "0",
-        "pagerefer": "",
-        "vsnf": "1",
-        "su": username,
-        "service": "sso",
-        "sp": password,
-        "sr": "1440*900",
-        "encoding": "UTF-8",
-        "cdult": "3",
-        "domain": "sina.com.cn",
-        "prelt": "0",
-        "returntype": "TEXT",
-    }
-    session = requests.Session()
-    r = session.post(loginURL, data=postData)
-    jsonStr = r.content.decode("gbk")
-    info = json.loads(jsonStr)
-    if info["retcode"] == "0":
-        logger.warning("Get Cookie Success!( Account:%s )" % account)
-        cookie = session.cookies.get_dict()
-        print cookie
-        return json.dumps(cookie)
+    cookie = dict()
+    if weibo_cookies._cookies.__contains__(".weibo.cn"):
+        logging.info("获取密码成功："+str(username))
+        weibo_cn_cookiejar = weibo_cookies._cookies[".weibo.cn"]["/"]
+        cookie['SCF'] = weibo_cn_cookiejar['SCF'].value
+        cookie['SSOLoginState'] = weibo_cn_cookiejar['SSOLoginState'].value
+        cookie['SUB'] = weibo_cn_cookiejar['SUB'].value
+        cookie['SUHB'] = weibo_cn_cookiejar['SUHB'].value
     else:
-        logger.warning("Failed!( Reason:%s )" % info["reason"])
-        return ""
+        logger.info("获取账号:"+str(username)+" 的cookie失败，原因：1. 账号或密码错误。 2. 微博登录次数过多，可以换网络登录或过4小时再登录！")
+    return cookie
 
 
 def get_cookie_from_weibo_cn(account, password):
@@ -165,16 +140,13 @@ def getCookies(weibo):
     for elem in weibo:
         account = elem['no']
         password = elem['psw']
-        cookie = dict()
-        weibo_cookiejar  =  SinaWeibo_GetCookies(account, password)._cookies['.weibo.cn']['/']
-        cookie['SCF'] = weibo_cookiejar['SCF'].value
-        cookie['SSOLoginState'] =weibo_cookiejar['SSOLoginState'].value
-        cookie['SUB'] =weibo_cookiejar['SUB'].value
-        cookie['SUHB'] =weibo_cookiejar['SUHB'].value
-        # if cookie != None:
-        cookies.append(cookie)
+        cookie  =  getCookie(account, password)
+        if cookie!=None and len(cookie.keys())!=0:
+            cookies.append(cookie)
+    if len(cookie)==0:
+        logger.info("没有cookie可以使用，爬虫系统将退出！")
+        sys.exit(0)
     return cookies
-
 
 cookies = getCookies(myWeiBo)
 logger.warning("Get Cookies Finish!( Num:%d)" % len(cookies))
